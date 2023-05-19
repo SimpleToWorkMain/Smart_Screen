@@ -7,7 +7,7 @@ from win32api import GetSystemMetrics
 import os
 import time
 import subprocess
-
+from tqdm import tqdm
 pytesseract.pytesseract.tesseract_cmd = f'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
 
@@ -54,14 +54,16 @@ def check_screen_for_text():
     width = GetSystemMetrics(0)
     height = GetSystemMetrics(1)
     mon = {'top': 0, 'left': 0, 'width':5000, 'height': 5000}
-
+    keywords = get_keywords()
     while end_loop is False:
-        keywords = get_keywords()
+
         counter = 0
         im = numpy.asarray(mss.mss().grab(mon))
         text = pytesseract.image_to_string(im).lower()
 
-        for keyword in keywords:
+        keyword_count = len(keywords)
+        for i in tqdm(range(0, keyword_count, 1), desc="Keyword Scan"):
+            keyword = keywords[i]
             if keyword.lower() in text:
                 start_position = text.find(keyword)
                 length_of_keyword = len(keyword)
